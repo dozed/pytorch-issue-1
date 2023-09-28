@@ -25,6 +25,9 @@ def do_forward_pass(
     else:
         img_updated = img
 
+    assert torch.allclose(img, img_updated)
+    assert torch.equal(img, img_updated)
+
     # forward pass
     x = model(img_updated)
 
