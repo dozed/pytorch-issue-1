@@ -44,8 +44,8 @@ def test_add_zero_different_result():
     model.eval()
     model.requires_grad_(False)
 
-    result1 = do_forward_pass(model, add_zeros=True)
-    result2 = do_forward_pass(model, add_zeros=False)
+    result1 = do_forward_pass(model, add_zeros=False)
+    result2 = do_forward_pass(model, add_zeros=True)
 
     # ISSUE: the results are not equal but should be, since only zeros are added
     assert torch.allclose(result1, result2)
