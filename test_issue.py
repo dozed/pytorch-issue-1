@@ -29,38 +29,24 @@ def do_forward_pass(
     assert torch.equal(img, img_updated)
 
     # forward pass
-    x = model(img_updated)
+    result = model(img_updated)
 
-    return x
+    return result
 
 
 def test_add_zero_different_result():
-    """
-    PyTorch issue: for the same input, different results are computed
-    """
-    n_channels = 129  # the results are all equal with n_channels <= 128
-
     # prepare model
     model = nn.Sequential(
-        nn.Conv2d(3, n_channels, kernel_size=3, padding=1),
-        Inception(n_channels, 4, 6, 8, 4, 8, 8),
+        nn.Conv2d(3, 129, kernel_size=3, padding=1),
+        Inception(129, 4, 6, 8, 4, 8, 8),
     )
     model.to(device)
     model.eval()
     model.requires_grad_(False)
 
-    # the results are equal when adding zeros both times or never
-    for add_zeros in [True, False]:
-        result1 = do_forward_pass(model, add_zeros=add_zeros)
-        result2 = do_forward_pass(model, add_zeros=add_zeros)
+    result1 = do_forward_pass(model, add_zeros=True)
+    result2 = do_forward_pass(model, add_zeros=False)
 
-        assert torch.allclose(result1, result2)
-        assert torch.equal(result1, result2)
-
-    # the results are not equal when one time zeros are added and the other time no zeros are added
-    for add_zeros_1, add_zeros_2 in [(False, True), (True, False)]:
-        result1 = do_forward_pass(model, add_zeros=add_zeros_1)
-        result2 = do_forward_pass(model, add_zeros=add_zeros_2)
-
-        assert not torch.allclose(result1, result2)
-        assert not torch.equal(result1, result2)
+    # ISSUE: the results are not equal but should be, since only zeros are added
+    assert torch.allclose(result1, result2)
+    assert torch.equal(result1, result2)
