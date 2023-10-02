@@ -30,6 +30,10 @@ def test_add_zero_different_result():
     y = conv1(img_updated)
     result2 = conv2(y)
 
+    # tensors after conv1 are equal
+    assert torch.allclose(x, y)
+    assert torch.equal(x, y)
+
     # ISSUE: the results are not equal but should be, since only zeros are added
     print(torch.linalg.norm(result1 - result2))
     assert torch.allclose(result1, result2)
