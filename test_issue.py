@@ -1,52 +1,39 @@
 import torch
 import torchvision
-from torch import nn, Tensor
+from torch import nn
 from torchvision.transforms import functional as FT
-
-from Inception import Inception
 
 device = torch.device('cpu')
 
 
-def do_forward_pass(
-        model: nn.Module,
-        add_zeros: bool,
-) -> Tensor:
+def test_add_zero_different_result():
     # prepare input
     img = torchvision.io.image.read_image('sky1024px.jpg')
     img = FT.convert_image_dtype(img, torch.float32)
     img = img.unsqueeze(dim=0)
     img = img.to(device)
 
-    # maybe add zero tensor
-    if add_zeros:
-        zeros = torch.zeros_like(img)
-        img_updated = img + zeros
-    else:
-        img_updated = img
+    # prepare input + zero
+    zeros = torch.zeros_like(img)
+    img_updated = img + zeros
 
+    # input tensors are identical
     assert torch.allclose(img, img_updated)
     assert torch.equal(img, img_updated)
 
-    # forward pass
-    result = model(img_updated)
-
-    return result
-
-
-def test_add_zero_different_result():
     # prepare model
-    model = nn.Sequential(
-        nn.Conv2d(3, 129, kernel_size=3, padding=1),
-        Inception(129, 4, 6, 8, 4, 8, 8),
-    )
-    model.to(device)
-    model.eval()
-    model.requires_grad_(False)
+    conv1 = nn.Conv2d(in_channels=3, out_channels=129, kernel_size=3, padding=1)
+    conv2 = nn.Conv2d(in_channels=129, out_channels=4, kernel_size=1)
 
-    result1 = do_forward_pass(model, add_zeros=False)
-    result2 = do_forward_pass(model, add_zeros=True)
+    # forward 1
+    x = conv1(img)
+    result1 = conv2(x)
+
+    # forward 2
+    y = conv1(img_updated)
+    result2 = conv2(y)
 
     # ISSUE: the results are not equal but should be, since only zeros are added
+    print(torch.linalg.norm(result1 - result2))
     assert torch.allclose(result1, result2)
     assert torch.equal(result1, result2)
