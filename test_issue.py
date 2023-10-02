@@ -21,6 +21,8 @@ def test_add_zero_different_result():
     # prepare model
     conv1 = nn.Conv2d(in_channels=3, out_channels=129, kernel_size=3, padding=1)
     conv2 = nn.Conv2d(in_channels=129, out_channels=4, kernel_size=1)
+    conv1.requires_grad_(False)
+    conv2.requires_grad_(False)
 
     # forward 1
     x = conv1(img)
