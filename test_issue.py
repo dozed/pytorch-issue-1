@@ -3,15 +3,12 @@ import torchvision
 from torch import nn
 from torchvision.transforms import functional as FT
 
-device = torch.device('cpu')
-
 
 def test_add_zero_different_result():
     # prepare input
     img = torchvision.io.image.read_image('sky1024px.jpg')
     img = FT.convert_image_dtype(img, torch.float32)
     img = img.unsqueeze(dim=0)
-    img = img.to(device)
 
     # prepare input + zero
     zeros = torch.zeros_like(img)
