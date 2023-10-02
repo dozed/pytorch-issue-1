@@ -1,10 +1,34 @@
+import os
+import random
+
+import numpy as np
 import torch
 import torchvision
 from torch import nn
 from torchvision.transforms import functional as FT
 
 
+def set_seed(seed: int) -> None:
+    # set seeds
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    random.seed(seed)
+    np.random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+
+    # disable cuDNN benchmarking and cuDNN
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.enabled = False
+
+    # use deterministic algorithms
+    torch.backends.cudnn.deterministic = True
+    torch.use_deterministic_algorithms(True)
+
+
 def test_add_zero_different_result():
+    set_seed(42)
+
     # prepare input
     img = torchvision.io.image.read_image('sky1024px.jpg')
     img = FT.convert_image_dtype(img, torch.float32)
@@ -37,6 +61,6 @@ def test_add_zero_different_result():
     assert torch.equal(x, y)
 
     # ISSUE: the results are not equal but should be, since only zeros are added
-    print(torch.linalg.norm(result1 - result2))
+    print(torch.linalg.norm(result1 - result2))  # 1.6691e-06
     assert torch.allclose(result1, result2)
     assert torch.equal(result1, result2)
