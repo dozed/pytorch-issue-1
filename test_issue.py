@@ -45,19 +45,13 @@ def test_add_zero_different_result():
 
     # prepare model
     conv1 = nn.Conv2d(in_channels=3, out_channels=2, kernel_size=3, padding=1)
-    conv2 = nn.Conv2d(in_channels=2, out_channels=2, kernel_size=1)
     conv1.requires_grad_(False)
-    conv2.requires_grad_(False)
 
     # forward 1
     x = conv1(img)
-    result1 = conv2(x)
-
-    # forward 2
     y = conv1(img_updated)
-    result2 = conv2(y)
 
     # ISSUE: the results are not equal but should be, since only zeros are added
-    print(torch.linalg.norm(result1 - result2))  # 2.9802e-08
-    assert torch.allclose(result1, result2)
-    assert torch.equal(result1, result2)
+    print(torch.linalg.norm(x - y))  # 6.0069e-08
+    assert torch.allclose(x, y)
+    assert torch.equal(x, y)
