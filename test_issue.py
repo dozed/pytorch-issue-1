@@ -28,6 +28,7 @@ def set_seed(seed: int) -> None:
 
 def test_add_zero_different_result():
     set_seed(42)
+    torch.set_printoptions(precision=9)
 
     # prepare input
     img = torchvision.io.image.read_image('sky1024px.jpg')
@@ -50,6 +51,11 @@ def test_add_zero_different_result():
     # forward 1
     x = conv1(img)
     y = conv1(img_updated)
+
+    print()
+    print(x)
+    print(y)
+    print(torch.eq(x, y))
 
     # ISSUE: the results are not equal but should be, since only zeros are added
     print(torch.linalg.norm(x - y))  # 6.0069e-08
