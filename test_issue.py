@@ -7,23 +7,7 @@ import torchvision
 from torch import nn
 from torchvision.transforms import functional as FT
 
-
-def set_seed(seed: int) -> None:
-    # set seeds
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-    random.seed(seed)
-    np.random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
-
-    # disable cuDNN benchmarking and cuDNN
-    torch.backends.cudnn.benchmark = False
-    torch.backends.cudnn.enabled = False
-
-    # use deterministic algorithms
-    torch.backends.cudnn.deterministic = True
-    torch.use_deterministic_algorithms(True)
+from util import set_seed
 
 
 def test_add_zero_different_result():
@@ -35,6 +19,8 @@ def test_add_zero_different_result():
     img = FT.convert_image_dtype(img, torch.float32)
     img = img[:, :1, :3]  # take only a subset of the image
     img = img.unsqueeze(dim=0)
+    # img = img.contiguous()
+    # print(img.is_contiguous())
 
     # prepare input + zero
     zeros = torch.zeros_like(img)
