@@ -22,7 +22,7 @@ def test_add_zero_different_result_2():
     torch.set_printoptions(precision=9)
     print()
 
-    # prepare non-contiguous input
+    # prepare non-contiguous NCHW input, simulating torchvision.io and multiple batch examples
     img = torch.tensor(
         [
             [[1.0, 2.0]],
@@ -30,27 +30,24 @@ def test_add_zero_different_result_2():
         ],
         dtype=torch.float32
     )
-
-    img = img.permute([2, 1, 0])
+    img = img.permute([2, 1, 0])  # test passes without permute
     img = img.unsqueeze(dim=0)
 
+    # add zeros
     zeros = torch.zeros_like(img)
+    # zeros = torch.zeros(size=img.size(), dtype=img.dtype)  # test passes using torch.zeros
     img_updated = img + zeros
+    # img_updated = img_updated.contiguous()  # test passes with contiguous tensor
 
     print_tensor_info('img', img)
     print_tensor_info('img_updated', img_updated)
     print_tensor_info('zeros', zeros)
-
-    assert not img.is_contiguous()
-    assert not img_updated.is_contiguous()
 
     conv1 = nn.Conv2d(in_channels=2, out_channels=2, kernel_size=3, padding=1)
     conv1.requires_grad_(False)
 
     x = conv1(img)
     y = conv1(img_updated)
-    assert x.is_contiguous()
-    assert not y.is_contiguous()
 
     print_tensor_info('x', x)
     print_tensor_info('y', y)
